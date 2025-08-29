@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Finder</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #fff;
+      line-height: 1.5;
+    }
+
+    .main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #ffcc00;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 30px;
+      border: none;
+      border-radius: 30px;
+      outline: none;
+      font-size: 1rem;
+      background: #1f1f1f;
+      color: #fff;
+      box-shadow: 0px 0px 10px rgba(255, 204, 0, 0.3);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .box {
+      background-color: #1f1f1f;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .box:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(255, 204, 0, 0.4);
+    }
+
+    .box img {
+      width: 100%;
+      display: block;
+      border-bottom: 2px solid #ffcc00;
+    }
+
+    .infodiv {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .infodiv h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .infodiv h3:last-child {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #bbb;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      padding: 15px;
+      list-style: none;
+      margin-top: 20px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pagination li {
+      padding: 10px 15px;
+      border-radius: 8px;
+      background-color: #ffcc00;
+      color: #121212;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .pagination li:hover {
+      background-color: #e6b800;
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <h1>🎬 Movie Finder</h1>
+    <input type="text" placeholder="🔍 Search for a movie..." class="Moviename">
+
+    <div class="row"></div>
+
+    <ul class="pagination"></ul>
+  </div>
+</body>
+<script>
+  let row = document.querySelector(".row");
+  let Moviename = document.querySelector(".Moviename")
+  let pagination = document.querySelector(".pagination")
+
+  Moviename.addEventListener("keyup", (event) => {
+    displayData(event.target.value)
+  })
+
+  // Pagination numbers
+  for (let i = 1; i <= 10; i++) {
+    pagination.innerHTML += `
+      <li onclick="Getpage(${i})">${i}</li>
+    `
+  }
+
+  let Getpage = (mypage) => {
+    displayData(null, mypage)
+  }
+
+  const displayData = async (moviename, mypage = 1) => {
+    let API;
+
+    if (moviename == undefined || moviename == '') {
+      API = `https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=04c35731a5ee918f014970082a0088b1&page=${mypage}`
+    } else {
+      API = `https://api.themoviedb.org/3/search/movie?&api_key=04c35731a5ee918f014970082a0088b1&query=${moviename}`
+    }
+
+    let api = await fetch(API)
+    let response = await api.json()
+    let alldata = await response.results
+
+    row.innerHTML = ""
+
+    alldata.forEach((v, i) => {
+      row.innerHTML += `
+        <div class="box">
+          <img src=${"https://image.tmdb.org/t/p/w500" + v.poster_path} alt="Movie Poster"/>
+          <div class="infodiv">
+            <h3>${v.original_title}</h3>
+            <h3>📅 ${v.release_date}</h3>
+          </div>
+        </div>
+      `
+    })
+  }
+
+  displayData()
+</script>
+</html>
